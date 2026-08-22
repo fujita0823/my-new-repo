@@ -4,7 +4,7 @@ const STORAGE_KEY = "theme";
 
 function applyTheme(theme) {
   root.setAttribute("data-theme", theme);
-  themeToggle.textContent = theme === "dark" ? "☀️ ライト" : "🌙 ダーク";
+  themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
 }
 
 const saved = localStorage.getItem(STORAGE_KEY);
@@ -15,17 +15,6 @@ themeToggle.addEventListener("click", () => {
   const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
   applyTheme(next);
   localStorage.setItem(STORAGE_KEY, next);
-});
-
-let count = 0;
-const countEl = document.getElementById("count");
-document.getElementById("inc").addEventListener("click", () => {
-  count += 1;
-  countEl.textContent = count;
-});
-document.getElementById("dec").addEventListener("click", () => {
-  count -= 1;
-  countEl.textContent = count;
 });
 
 const canvas = document.getElementById("particles");
@@ -53,15 +42,18 @@ if (canvas) {
     }));
   }
 
-  function isDark() {
-    return document.documentElement.getAttribute("data-theme") === "dark";
+  function accentColors() {
+    const styles = getComputedStyle(root);
+    return {
+      dot: styles.getPropertyValue("--accent").trim(),
+      line: styles.getPropertyValue("--accent-4").trim(),
+    };
   }
 
   function step() {
     const rect = canvas.getBoundingClientRect();
     ctx.clearRect(0, 0, rect.width, rect.height);
-    const dotColor = isDark() ? "rgba(139,147,255,0.9)" : "rgba(88,101,242,0.8)";
-    const lineColor = isDark() ? "139,147,255" : "88,101,242";
+    const { dot: dotColor, line: lineColor } = accentColors();
 
     for (const p of particles) {
       p.x += p.vx;
@@ -83,13 +75,14 @@ if (canvas) {
       p.vy *= 0.98;
     }
 
+    ctx.strokeStyle = lineColor;
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const a = particles[i];
         const b = particles[j];
         const dist = Math.hypot(a.x - b.x, a.y - b.y);
         if (dist < 110) {
-          ctx.strokeStyle = `rgba(${lineColor},${(1 - dist / 110) * 0.5})`;
+          ctx.globalAlpha = (1 - dist / 110) * 0.5;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
@@ -97,11 +90,12 @@ if (canvas) {
         }
       }
     }
+    ctx.globalAlpha = 1;
 
     ctx.fillStyle = dotColor;
     for (const p of particles) {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -178,6 +172,57 @@ function makeLiquid(el) {
 }
 
 document.querySelectorAll(".liquid-btn").forEach(makeLiquid);
+
+const revealEls = document.querySelectorAll(".reveal");
+if ("IntersectionObserver" in window) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in-view");
+          io.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+  revealEls.forEach((el) => io.observe(el));
+} else {
+  revealEls.forEach((el) => el.classList.add("in-view"));
+}
+
+function burstConfetti(x, y) {
+  const styles = getComputedStyle(root);
+  const colors = ["--accent", "--accent-2", "--accent-3", "--accent-4"].map((name) =>
+    styles.getPropertyValue(name).trim()
+  );
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 80 + Math.random() * 220;
+    piece.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+    piece.style.setProperty("--dy", `${Math.sin(angle) * dist + 220}px`);
+    piece.style.setProperty("--rot", `${Math.random() * 720 - 360}deg`);
+    piece.style.background = colors[i % colors.length];
+    piece.style.left = `${x}px`;
+    piece.style.top = `${y}px`;
+    document.body.appendChild(piece);
+    piece.addEventListener("animationend", () => piece.remove());
+  }
+}
+
+let waveCount = 0;
+const waveBtn = document.getElementById("wave-btn");
+const waveCountEl = document.getElementById("wave-count");
+if (waveBtn) {
+  waveBtn.addEventListener("click", () => {
+    waveCount += 1;
+    waveCountEl.textContent = `${waveCount} 回 振られました`;
+    const rect = waveBtn.getBoundingClientRect();
+    burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  });
+}
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
