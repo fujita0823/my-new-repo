@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ff5d8f" />
+  <title>my-new-repo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+</head>
+<body>
+  <svg width="0" height="0" style="position: absolute">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★</span>
+      <span>★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★</span>
+    </div>
+  </div>
+
+  <nav class="pillnav">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#play">Play</a>
+    <a href="#contact">Say Hi</a>
+  </nav>
+
+  <button id="theme-toggle" class="liquid-btn theme-fab" type="button" aria-label="テーマ切り替え">🌙</button>
+
+  <header class="hero">
+    <div class="blob-field" aria-hidden="true">
+      <span class="blob blob-1"></span>
+      <span class="blob blob-2"></span>
+      <span class="blob blob-3"></span>
+      <span class="blob blob-4"></span>
+    </div>
+    <div class="hero-inner">
+      <p class="eyebrow">✦ まだ何者でもない ✦</p>
+      <h1 class="wordmark">
+        <span class="line">HELLO,</span>
+        <span class="line accent-text">WORLD.</span>
+      </h1>
+      <p class="tagline">中身は空っぽ、でも元気だけは満タンなポートフォリオ(仮)。</p>
+      <p class="status">Now: <span id="status-text">コーヒー3杯目</span></p>
+      <a href="#work" class="liquid-btn big-btn">作品を見る ↓</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="work" class="work reveal">
+      <h2 class="section-title">WORK <span class="pill-tag">coming soon</span></h2>
+      <div class="work-grid">
+        <article class="work-card featured">
+          <span class="ribbon">ずっと作りたかったやつ</span>
+          <span class="work-emoji">🚧</span>
+          <h3>Project 01</h3>
+          <p>近日公開。たぶん。おそらく。</p>
+        </article>
+        <article class="work-card">
+          <span class="work-emoji">🎨</span>
+          <h3>Project 02</h3>
+          <p>アイデアはある。形はまだない。</p>
+        </article>
+        <article class="work-card">
+          <span class="work-emoji">🛠️</span>
+          <h3>Project 03</h3>
+          <p>ここに何か素敵なものが入る予定。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="about" class="about reveal">
+      <div class="about-avatar" aria-hidden="true">
+        <span class="eye eye-l"><span class="pupil"></span></span>
+        <span class="eye eye-r"><span class="pupil"></span></span>
+        <span class="mouth"></span>
+      </div>
+      <div class="about-text">
+        <h2 class="section-title">ABOUT</h2>
+        <p>自己紹介は近日公開。とりあえずこのブロブは元気に形を変え続けています。</p>
+      </div>
+    </section>
+
+    <section id="play" class="play reveal">
+      <h2 class="section-title">PLAYGROUND</h2>
+      <p class="hint">指でつんつんすると、近くのパーティクルが線でつながる。</p>
+      <canvas id="particles"></canvas>
+    </section>
+
+    <section id="contact" class="contact reveal">
+      <h2 class="section-title">SAY HI</h2>
+      <button id="wave-btn" class="liquid-btn big-btn wave-btn" type="button">👋 手を振る</button>
+      <p id="wave-count" class="hint">0 回 振られました</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built with plain HTML / CSS / JS · GitHub Pages</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

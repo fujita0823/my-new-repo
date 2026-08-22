@@ -4,112 +4,122 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#ff5d8f" />
-  <title>my-new-repo</title>
+  <title>my-new-repo · LAB</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" type="image/svg+xml" href="icon.svg" />
-  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root {
+      --bg: #fff9f2;
+      --fg: #221c30;
+      --muted: #6f6480;
+      --card-bg: #ffffff;
+      --accent: #ff5d8f;
+      --accent-2: #ffd23f;
+      --accent-3: #22d3ee;
+      --accent-4: #7c5cff;
+      --border: #f0e0e8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #181229;
+        --fg: #f6f1fb;
+        --muted: #b6aecb;
+        --card-bg: #241b3a;
+        --border: #3a2c53;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+    .wrap {
+      max-width: 640px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(2rem, 8vw, 3rem);
+      margin: 0 0 0.5rem;
+    }
+    .wrap p.lead {
+      color: var(--muted);
+      margin: 0 0 2.5rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+      text-align: left;
+    }
+    a.card {
+      display: block;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: var(--fg);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    }
+    a.card:hover {
+      transform: translateY(-6px) rotate(-1deg);
+      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.1);
+    }
+    a.card .emoji {
+      font-size: 2.2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    a.card h2 {
+      font-family: "Fredoka", sans-serif;
+      font-size: 1.1rem;
+      margin: 0 0 0.3rem;
+    }
+    a.card p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+    footer {
+      margin-top: 2.5rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
 </head>
 <body>
-  <svg width="0" height="0" style="position: absolute">
-    <defs>
-      <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11" result="goo" />
-        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-      </filter>
-    </defs>
-  </svg>
-
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <span>★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★</span>
-      <span>★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★ PORTFOLIO ★ WORK IN PROGRESS ★ SAY HI ★ MADE WITH JS ★</span>
+  <div class="wrap">
+    <h1>🧪 LAB</h1>
+    <p class="lead">思いついたものを気軽に置いていく実験場。</p>
+    <div class="grid">
+      <a class="card" href="portfolio/">
+        <span class="emoji">🎨</span>
+        <h2>Portfolio</h2>
+        <p>コミカルで動的なランディングページ(仮)。</p>
+      </a>
+      <a class="card" href="reaction/">
+        <span class="emoji">⚡</span>
+        <h2>反応速度テスト</h2>
+        <p>光ったらタップ。ベストタイムを記録。</p>
+      </a>
+      <a class="card" href="pomodoro/">
+        <span class="emoji">🍅</span>
+        <h2>ポモドーロタイマー</h2>
+        <p>25分集中・5分休憩をゆるく管理。</p>
+      </a>
     </div>
+    <footer>Built with plain HTML / CSS / JS · GitHub Pages</footer>
   </div>
-
-  <nav class="pillnav">
-    <a href="#work">Work</a>
-    <a href="#about">About</a>
-    <a href="#play">Play</a>
-    <a href="#contact">Say Hi</a>
-  </nav>
-
-  <button id="theme-toggle" class="liquid-btn theme-fab" type="button" aria-label="テーマ切り替え">🌙</button>
-
-  <header class="hero">
-    <div class="blob-field" aria-hidden="true">
-      <span class="blob blob-1"></span>
-      <span class="blob blob-2"></span>
-      <span class="blob blob-3"></span>
-      <span class="blob blob-4"></span>
-    </div>
-    <div class="hero-inner">
-      <p class="eyebrow">✦ まだ何者でもない ✦</p>
-      <h1 class="wordmark">
-        <span class="line">HELLO,</span>
-        <span class="line accent-text">WORLD.</span>
-      </h1>
-      <p class="tagline">中身は空っぽ、でも元気だけは満タンなポートフォリオ(仮)。</p>
-      <p class="status">Now: <span id="status-text">コーヒー3杯目</span></p>
-      <a href="#work" class="liquid-btn big-btn">作品を見る ↓</a>
-    </div>
-  </header>
-
-  <main>
-    <section id="work" class="work reveal">
-      <h2 class="section-title">WORK <span class="pill-tag">coming soon</span></h2>
-      <div class="work-grid">
-        <article class="work-card featured">
-          <span class="ribbon">ずっと作りたかったやつ</span>
-          <span class="work-emoji">🚧</span>
-          <h3>Project 01</h3>
-          <p>近日公開。たぶん。おそらく。</p>
-        </article>
-        <article class="work-card">
-          <span class="work-emoji">🎨</span>
-          <h3>Project 02</h3>
-          <p>アイデアはある。形はまだない。</p>
-        </article>
-        <article class="work-card">
-          <span class="work-emoji">🛠️</span>
-          <h3>Project 03</h3>
-          <p>ここに何か素敵なものが入る予定。</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="about" class="about reveal">
-      <div class="about-avatar" aria-hidden="true">
-        <span class="eye eye-l"><span class="pupil"></span></span>
-        <span class="eye eye-r"><span class="pupil"></span></span>
-        <span class="mouth"></span>
-      </div>
-      <div class="about-text">
-        <h2 class="section-title">ABOUT</h2>
-        <p>自己紹介は近日公開。とりあえずこのブロブは元気に形を変え続けています。</p>
-      </div>
-    </section>
-
-    <section id="play" class="play reveal">
-      <h2 class="section-title">PLAYGROUND</h2>
-      <p class="hint">指でつんつんすると、近くのパーティクルが線でつながる。</p>
-      <canvas id="particles"></canvas>
-    </section>
-
-    <section id="contact" class="contact reveal">
-      <h2 class="section-title">SAY HI</h2>
-      <button id="wave-btn" class="liquid-btn big-btn wave-btn" type="button">👋 手を振る</button>
-      <p id="wave-count" class="hint">0 回 振られました</p>
-    </section>
-  </main>
-
-  <footer>
-    <p>Built with plain HTML / CSS / JS · GitHub Pages</p>
-  </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>
