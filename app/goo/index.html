@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#7c5cff" />
+  <title>ぷにぷに · LAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #16101f;
+      --fg: #f6f1fb;
+      --muted: #b6aecb;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Nunito", sans-serif;
+      touch-action: none;
+    }
+    #field {
+      position: fixed;
+      inset: 0;
+      filter: url(#goo);
+    }
+    .blob {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      will-change: transform;
+    }
+    .ui {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      z-index: 2;
+    }
+    .ui a, .ui button {
+      pointer-events: auto;
+    }
+    a.back {
+      align-self: flex-start;
+      color: var(--fg);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    #clear {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--fg);
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    .hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position: absolute">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div id="field"></div>
+
+  <div class="ui">
+    <div class="top-row">
+      <a class="back" href="../">← LAB</a>
+      <button id="clear" type="button">クリア</button>
+    </div>
+    <p class="hint">タップで増やす・つまんで投げる</p>
+  </div>
+
+  <script>
+    const field = document.getElementById("field");
+    const colors = ["#ff5d8f", "#ffd23f", "#22d3ee", "#7c5cff"];
+    const MAX_BLOBS = 32;
+    const GRAVITY = 0.45;
+    const FLOOR_DAMP = 0.42;
+    const WALL_DAMP = 0.55;
+    const AIR_DRAG = 0.994;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    window.addEventListener("resize", () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+    });
+
+    const blobs = [];
+
+    function spawnBlob(x, y, vx = 0, vy = 0) {
+      if (blobs.length >= MAX_BLOBS) {
+        const oldest = blobs.shift();
+        oldest.el.remove();
+      }
+      const r = 22 + Math.random() * 26;
+      const el = document.createElement("span");
+      el.className = "blob";
+      el.style.width = `${r * 2}px`;
+      el.style.height = `${r * 2}px`;
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      field.appendChild(el);
+      blobs.push({ el, x, y, vx, vy, r, held: false });
+    }
+
+    for (let i = 0; i < 10; i++) {
+      spawnBlob(Math.random() * W, -Math.random() * H, (Math.random() - 0.5) * 2, 0);
+    }
+
+    let held = null;
+    let lastPointer = { x: 0, y: 0, t: 0 };
+
+    function findNear(x, y) {
+      let closest = null;
+      let closestDist = Infinity;
+      for (const b of blobs) {
+        const d = Math.hypot(b.x - x, b.y - y);
+        if (d < b.r * 1.6 && d < closestDist) {
+          closest = b;
+          closestDist = d;
+        }
+      }
+      return closest;
+    }
+
+    field.addEventListener("pointerdown", (e) => {
+      const found = findNear(e.clientX, e.clientY);
+      if (found) {
+        held = found;
+        held.held = true;
+        held.vx = 0;
+        held.vy = 0;
+      } else {
+        spawnBlob(e.clientX, e.clientY, (Math.random() - 0.5) * 4, -Math.random() * 3);
+      }
+      lastPointer = { x: e.clientX, y: e.clientY, t: performance.now() };
+    });
+
+    window.addEventListener("pointermove", (e) => {
+      if (!held) return;
+      const now = performance.now();
+      const dt = Math.max(now - lastPointer.t, 1);
+      held.vx = ((e.clientX - lastPointer.x) / dt) * 16;
+      held.vy = ((e.clientY - lastPointer.y) / dt) * 16;
+      held.x = e.clientX;
+      held.y = e.clientY;
+      lastPointer = { x: e.clientX, y: e.clientY, t: now };
+    });
+
+    function release() {
+      if (held) held.held = false;
+      held = null;
+    }
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+
+    document.getElementById("clear").addEventListener("click", () => {
+      blobs.forEach((b) => b.el.remove());
+      blobs.length = 0;
+      held = null;
+    });
+
+    function step() {
+      for (const b of blobs) {
+        if (!b.held) {
+          b.vy += reduceMotion ? GRAVITY * 0.3 : GRAVITY;
+          b.vx *= AIR_DRAG;
+          b.x += b.vx;
+          b.y += b.vy;
+
+          if (b.x < b.r) {
+            b.x = b.r;
+            b.vx *= -WALL_DAMP;
+          } else if (b.x > W - b.r) {
+            b.x = W - b.r;
+            b.vx *= -WALL_DAMP;
+          }
+          if (b.y > H - b.r) {
+            b.y = H - b.r;
+            b.vy *= -FLOOR_DAMP;
+            b.vx *= 0.9;
+          }
+        }
+        b.el.style.transform = `translate(${b.x - b.r}px, ${b.y - b.r}px)`;
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  </script>
+</body>
+</html>
