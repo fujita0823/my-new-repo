@@ -145,7 +145,8 @@
 
     let held = null;
     const pointer = { x: null, y: null };
-    const LIFT_FACTOR = 0.025;
+    const LIFT_FACTOR = 0.045;
+    const MAX_SPEED = 16;
 
     function triggerSquash(b, impact, axis) {
       b.squash = Math.min(1, impact / 10);
@@ -211,6 +212,12 @@
         } else {
           b.vy += reduceMotion ? GRAVITY * 0.3 : GRAVITY;
           b.vx *= AIR_DRAG;
+          const spd = Math.hypot(b.vx, b.vy);
+          if (spd > MAX_SPEED) {
+            const k = MAX_SPEED / spd;
+            b.vx *= k;
+            b.vy *= k;
+          }
           b.x += b.vx;
           b.y += b.vy;
 
@@ -237,24 +244,24 @@
         b.squash *= 0.9;
 
         const speed = Math.hypot(b.vx, b.vy);
-        const velStretch = Math.min(speed / 10, 1.1);
+        const velStretch = Math.min(speed / 16, 0.6);
         const angle = speed > 0.05 ? Math.atan2(b.vy, b.vx) : 0;
         let squashX = 1;
         let squashY = 1;
         if (b.squash > 0.01) {
           if (b.squashAxis === "floor") {
-            squashX = 1 + b.squash * 1.1;
-            squashY = 1 - b.squash * 0.75;
+            squashX = 1 + b.squash * 0.8;
+            squashY = 1 - b.squash * 0.55;
           } else {
-            squashX = 1 - b.squash * 0.75;
-            squashY = 1 + b.squash * 1.1;
+            squashX = 1 - b.squash * 0.55;
+            squashY = 1 + b.squash * 0.8;
           }
         }
 
         b.el.style.transform =
           `translate(${b.x - b.r}px, ${b.y - b.r}px) ` +
           `scale(${squashX}, ${squashY}) ` +
-          `rotate(${angle}rad) scale(${1 + velStretch}, ${1 - velStretch * 0.65}) rotate(${-angle}rad)`;
+          `rotate(${angle}rad) scale(${1 + velStretch}, ${1 - velStretch * 0.5}) rotate(${-angle}rad)`;
       }
       requestAnimationFrame(step);
     }
