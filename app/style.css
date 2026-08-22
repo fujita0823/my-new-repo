@@ -137,6 +137,31 @@ main {
   font-size: 1.2rem;
 }
 
+.canvas-section {
+  margin-top: 1.5rem;
+}
+
+.canvas-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.canvas-section .hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0;
+}
+
+#particles {
+  width: 100%;
+  height: 320px;
+  display: block;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  touch-action: none;
+}
+
 footer {
   text-align: center;
   color: var(--muted);
