@@ -3,8 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#5865f2" />
   <title>my-new-repo</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
 </head>
 <body>
   <header class="hero">
@@ -35,6 +38,12 @@
           <button id="inc" type="button">+</button>
         </div>
       </article>
+    </section>
+
+    <section class="canvas-section">
+      <h2>指でなぞってみて</h2>
+      <p class="hint">近くのパーティクルが線でつながる、タッチ/マウス反応のcanvasアニメーション。</p>
+      <canvas id="particles"></canvas>
     </section>
   </main>
 
