@@ -243,7 +243,22 @@ h1, h2, h3 {
 .tagline {
   color: var(--muted);
   font-size: 1.05rem;
+  margin: 0 0 0.6rem;
+}
+
+.status {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-4);
   margin: 0 0 1.75rem;
+}
+
+.status span {
+  transition: opacity 0.25s ease;
+}
+
+.status span.fade {
+  opacity: 0;
 }
 
 /* Liquid buttons */
@@ -328,13 +343,45 @@ main {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
 
-.work-card:nth-child(1) { transform: rotate(-2deg); }
 .work-card:nth-child(2) { transform: rotate(1.5deg); }
 .work-card:nth-child(3) { transform: rotate(-1deg); }
 
 .work-card:hover {
   transform: rotate(0) translateY(-6px) scale(1.03);
   box-shadow: 0 16px 28px rgba(0, 0, 0, 0.1);
+}
+
+.work-card.featured {
+  position: relative;
+  grid-column: span 2;
+  transform: rotate(-3deg) scale(1.05);
+  border: 2px dashed var(--accent);
+  background: var(--accent-soft);
+}
+
+.work-card.featured:hover {
+  transform: rotate(0) translateY(-8px) scale(1.08);
+}
+
+.ribbon {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 var(--accent-4);
+}
+
+@media (max-width: 480px) {
+  .work-card.featured {
+    grid-column: span 1;
+  }
 }
 
 .work-emoji {
@@ -361,13 +408,10 @@ main {
 }
 
 .about-avatar {
+  position: relative;
   flex-shrink: 0;
   width: 140px;
   height: 140px;
-  font-size: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: linear-gradient(135deg, var(--accent), var(--accent-3));
   animation: blobShape 9s ease-in-out infinite;
 }
@@ -375,6 +419,46 @@ main {
 @keyframes blobShape {
   0%, 100% { border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%; }
   50% { border-radius: 65% 35% 40% 60% / 55% 60% 40% 45%; }
+}
+
+.eye {
+  position: absolute;
+  top: 42%;
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.eye-l {
+  left: 28%;
+}
+
+.eye-r {
+  left: 58%;
+}
+
+.pupil {
+  width: 11px;
+  height: 11px;
+  background: #221c30;
+  border-radius: 50%;
+  transform: translate(0, 0);
+}
+
+.mouth {
+  position: absolute;
+  left: 50%;
+  bottom: 32%;
+  width: 26px;
+  height: 13px;
+  border-bottom: 4px solid rgba(34, 28, 48, 0.8);
+  border-radius: 0 0 14px 14px;
+  transform: translateX(-50%);
 }
 
 .about-text {
