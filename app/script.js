@@ -224,6 +224,46 @@ if (waveBtn) {
   });
 }
 
+const pupils = document.querySelectorAll(".pupil");
+if (pupils.length) {
+  const MAX_PUPIL_OFFSET = 3;
+  function trackEyes(clientX, clientY) {
+    pupils.forEach((pupil) => {
+      const eye = pupil.parentElement;
+      const rect = eye.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const angle = Math.atan2(clientY - cy, clientX - cx);
+      const dx = Math.cos(angle) * MAX_PUPIL_OFFSET;
+      const dy = Math.sin(angle) * MAX_PUPIL_OFFSET;
+      pupil.style.transform = `translate(${dx}px, ${dy}px)`;
+    });
+  }
+  window.addEventListener("pointermove", (e) => trackEyes(e.clientX, e.clientY));
+}
+
+const statusEl = document.getElementById("status-text");
+if (statusEl) {
+  const statuses = [
+    "コーヒー3杯目",
+    "アイデアを寝かせ中",
+    "散歩から帰ってきたところ",
+    "ラーメン食べたい気分",
+    "コードよりお昼ご飯のことを考えてる",
+    "なんとなく元気",
+    "締め切りに追われていない(嘘)",
+  ];
+  let statusIndex = 0;
+  setInterval(() => {
+    statusEl.classList.add("fade");
+    setTimeout(() => {
+      statusIndex = (statusIndex + 1) % statuses.length;
+      statusEl.textContent = statuses[statusIndex];
+      statusEl.classList.remove("fade");
+    }, 250);
+  }, 4000);
+}
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch(() => {});
