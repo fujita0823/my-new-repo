@@ -130,6 +130,55 @@ if (canvas) {
   requestAnimationFrame(step);
 }
 
+function makeLiquid(el) {
+  const MAX_DIST = 44;
+  let pointerId = null;
+  let startX = 0;
+  let startY = 0;
+
+  function applyDeform(dx, dy) {
+    const dist = Math.min(Math.hypot(dx, dy), MAX_DIST);
+    const angle = Math.atan2(dy, dx);
+    const stretch = dist / MAX_DIST;
+    const sx = 1 + stretch * 0.4;
+    const sy = 1 - stretch * 0.28;
+    const followX = dx * 0.35;
+    const followY = dy * 0.35;
+    el.style.transform =
+      `translate(${followX}px, ${followY}px) rotate(${angle}rad) scale(${sx}, ${sy}) rotate(${-angle}rad)`;
+    const radiusShift = 50 + stretch * 30;
+    el.style.borderRadius = `${radiusShift}% ${100 - radiusShift}% ${radiusShift}% ${100 - radiusShift}% / ${100 - radiusShift}% ${radiusShift}% ${100 - radiusShift}% ${radiusShift}%`;
+  }
+
+  function reset() {
+    pointerId = null;
+    el.classList.remove("liquid-active");
+    el.style.transform = "";
+    el.style.borderRadius = "";
+  }
+
+  el.addEventListener("pointerdown", (e) => {
+    pointerId = e.pointerId;
+    startX = e.clientX;
+    startY = e.clientY;
+    el.classList.add("liquid-active");
+    el.setPointerCapture(pointerId);
+  });
+
+  el.addEventListener("pointermove", (e) => {
+    if (pointerId === null || e.pointerId !== pointerId) return;
+    applyDeform(e.clientX - startX, e.clientY - startY);
+  });
+
+  el.addEventListener("pointerup", (e) => {
+    if (e.pointerId !== pointerId) return;
+    reset();
+  });
+  el.addEventListener("pointercancel", reset);
+}
+
+document.querySelectorAll(".liquid-btn").forEach(makeLiquid);
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch(() => {});
