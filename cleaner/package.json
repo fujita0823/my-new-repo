@@ -1,0 +1,14 @@
+{
+  "name": "gamer-cleaner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ゲーマー向けのローカルファイル整理ツール(Electron)",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0"
+  }
+}
