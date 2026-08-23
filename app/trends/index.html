@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ff5d8f" />
+  <title>フロントエンド流行り比較 · LAB</title>
+  <meta name="description" content="2026年時点のフロントエンド界隈のトレンドを、UIフレームワーク・ビルドツール・スタイリング・デスクトップランタイムのレイヤー別に視覚化して比較。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fff9f2;
+      --fg: #221c30;
+      --muted: #6f6480;
+      --card-bg: #ffffff;
+      --accent: #ff5d8f;
+      --accent-2: #ffd23f;
+      --accent-3: #22d3ee;
+      --accent-4: #7c5cff;
+      --border: #f0e0e8;
+      --dot-on: #ff5d8f;
+      --dot-off: #f0e0e8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #181229;
+        --fg: #f6f1fb;
+        --muted: #b6aecb;
+        --card-bg: #241b3a;
+        --border: #3a2c53;
+        --dot-off: #3a2c53;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    a.back {
+      display: inline-block;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-family: "Fredoka", sans-serif;
+      font-size: clamp(1.6rem, 6vw, 2.3rem);
+      margin: 0 0 0.4rem;
+    }
+    p.lead {
+      color: var(--muted);
+      margin: 0 0 2rem;
+      max-width: 62ch;
+      line-height: 1.6;
+    }
+
+    /* --- layer diagram --- */
+    .stack {
+      display: grid;
+      gap: 0.6rem;
+      margin-bottom: 2.5rem;
+    }
+    .stack .layer {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 0.9rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .stack .layer .tag {
+      font-family: "Fredoka", sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent-4);
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .stack .layer:nth-child(2) .tag { background: var(--accent-3); color: #10222a; }
+    .stack .layer:nth-child(3) .tag { background: var(--accent-2); color: #3a2c00; }
+    .stack .layer .desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+    .stack .layer .desc b { color: var(--fg); }
+    .stack .arrow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: -0.2rem 0;
+    }
+
+    /* --- filters --- */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .filters button {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--fg);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+    .filters button:hover { transform: translateY(-2px); }
+    .filters button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* --- cards --- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.1rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.3rem 1.4rem;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.1);
+    }
+    .card.hidden { display: none; }
+    .cat-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      margin-bottom: 0.6rem;
+    }
+    .card .emoji { font-size: 1.8rem; display: block; margin-bottom: 0.3rem; }
+    .card h2 {
+      font-family: "Fredoka", sans-serif;
+      font-size: 1.05rem;
+      margin: 0 0 0.4rem;
+    }
+    .card p.desc {
+      color: var(--muted);
+      font-size: 0.87rem;
+      line-height: 1.55;
+      margin: 0 0 0.9rem;
+    }
+    .meters { display: grid; gap: 0.35rem; }
+    .meter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .meter .dots { letter-spacing: 0.15em; font-size: 0.8rem; }
+    .meter .dots .on { color: var(--dot-on); }
+    .meter .dots .off { color: var(--dot-off); }
+
+    footer {
+      margin-top: 2.5rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+    .note {
+      margin-top: 2rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="../">← LAB</a>
+    <h1>🧭 フロントエンド流行り比較</h1>
+    <p class="lead">
+      「フレームワーク」「ビルドツール」「スタイリング」「デスクトップランタイム」は
+      それぞれ別レイヤーの技術。まず全体の重なり方を図で、次に各レイヤーの主要な
+      顔ぶれをカードで見比べられるようにした。
+    </p>
+
+    <div class="stack">
+      <div class="layer">
+        <span class="tag">UIフレームワーク</span>
+        <span class="desc">画面を<b>どう組み立てるか</b>。React / Astro / Svelte / Solid など</span>
+      </div>
+      <div class="arrow">↓ ビルド</div>
+      <div class="layer">
+        <span class="tag">ビルドツール</span>
+        <span class="desc">コードを<b>どう束ねて最適化するか</b>。Vite / Rolldown / Bun など</span>
+      </div>
+      <div class="arrow">↓ 配布先を選ぶ</div>
+      <div class="layer">
+        <span class="tag">実行先</span>
+        <span class="desc">ブラウザ / <b>デスクトップアプリ化(Electron・Tauri)</b> / エッジ、など</span>
+      </div>
+    </div>
+
+    <div class="filters" role="tablist" aria-label="カテゴリで絞り込み">
+      <button type="button" class="active" data-filter="all">すべて</button>
+      <button type="button" data-filter="framework">UIフレームワーク</button>
+      <button type="button" data-filter="build">ビルドツール</button>
+      <button type="button" data-filter="style">スタイリング</button>
+      <button type="button" data-filter="desktop">デスクトップ</button>
+    </div>
+
+    <div class="grid" id="grid">
+
+      <article class="card" data-cat="framework">
+        <span class="cat-badge">UIフレームワーク</span>
+        <span class="emoji">⚛️</span>
+        <h2>React (RSC / Next.js)</h2>
+        <p class="desc">サーバーコンポーネントでクライアントに送るJSを削減。App Routerが主流を牽引。エコシステムの厚さが最大の強み。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●●</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="framework">
+        <span class="cat-badge">UIフレームワーク</span>
+        <span class="emoji">🚀</span>
+        <h2>Astro</h2>
+        <p class="desc">「アイランドアーキテクチャ」で基本は静的HTML、JSが必要な部分だけ後から注入。ブログ・コンテンツサイトに強い。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="framework">
+        <span class="cat-badge">UIフレームワーク</span>
+        <span class="emoji">🔥</span>
+        <h2>Svelte 5 (Runes)</h2>
+        <p class="desc">コンパイラ型で仮想DOMを使わず、Runesでsignalsベースの反応性に移行。書きやすさへの評価が高い。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="framework">
+        <span class="cat-badge">UIフレームワーク</span>
+        <span class="emoji">🧬</span>
+        <h2>Solid.js</h2>
+        <p class="desc">signalsをネイティブに採用し仮想DOMなしで直接DOM更新。実行速度の速さで評価されるが採用はニッチ寄り。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="build">
+        <span class="cat-badge">ビルドツール</span>
+        <span class="emoji">⚡</span>
+        <h2>Vite</h2>
+        <p class="desc">開発サーバーの起動・HMRが高速で事実上の標準に。多くのフレームワークの公式スキャフォールドが採用。</p>
+        <div class="meters">
+          <div class="meter"><span>導入のしやすさ</span><span class="dots"><span class="on">●●●</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●●</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="build">
+        <span class="cat-badge">ビルドツール</span>
+        <span class="emoji">🦀</span>
+        <h2>Rolldown / Rspack</h2>
+        <p class="desc">Rust製の次世代バンドラー。Webpack互換やVite内部への統合が進み、ビルド速度の底上げを狙う。</p>
+        <div class="meters">
+          <div class="meter"><span>導入のしやすさ</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="build">
+        <span class="cat-badge">ビルドツール</span>
+        <span class="emoji">🥟</span>
+        <h2>Bun</h2>
+        <p class="desc">ランタイム・パッケージマネージャ・バンドラーを1つに。npm installの遅さへの不満から採用が広がる。</p>
+        <div class="meters">
+          <div class="meter"><span>導入のしやすさ</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="style">
+        <span class="cat-badge">スタイリング</span>
+        <span class="emoji">🎨</span>
+        <h2>Tailwind CSS v4</h2>
+        <p class="desc">ユーティリティファーストの定番。v4でエンジンをRust化して大幅高速化、設定もCSSファイル内で完結するように。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●●</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="style">
+        <span class="cat-badge">スタイリング</span>
+        <span class="emoji">📦</span>
+        <h2>Zero-runtime CSS-in-JS</h2>
+        <p class="desc">vanilla-extract・Panda CSSなど。ビルド時に静的CSSへ変換し、従来のCSS-in-JSのランタイム負荷を回避。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="style">
+        <span class="cat-badge">スタイリング</span>
+        <span class="emoji">🌐</span>
+        <h2>ネイティブCSSの進化</h2>
+        <p class="desc">@container・:has()・View Transitions APIなどブラウザ標準機能が強化され、JSライブラリ依存が減る方向に。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="desktop">
+        <span class="cat-badge">デスクトップランタイム</span>
+        <span class="emoji">💻</span>
+        <h2>Electron</h2>
+        <p class="desc">Chromium + Node.jsを同梱してWebアプリをデスクトップアプリ化。VS Code・Slack・Discordなど実績豊富だが配布サイズは大きめ。</p>
+        <div class="meters">
+          <div class="meter"><span>軽さ</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>実績・情報量</span><span class="dots"><span class="on">●●●</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="desktop">
+        <span class="cat-badge">デスクトップランタイム</span>
+        <span class="emoji">🐢</span>
+        <h2>Tauri</h2>
+        <p class="desc">RustコアでOS標準のWebViewを利用し、Chromium同梱を避けて大幅に軽量・省メモリ化。Electronの代替として採用拡大中。</p>
+        <div class="meters">
+          <div class="meter"><span>軽さ</span><span class="dots"><span class="on">●●●</span></span></div>
+          <div class="meter"><span>実績・情報量</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+    </div>
+
+    <p class="note">
+      ※ 「学習コスト」「採用の勢い」「軽さ」等は数値データではなく、2026年時点の一般的な傾向をもとにした相対的な目安。
+    </p>
+
+    <footer>Built with plain HTML / CSS / JS · GitHub Pages</footer>
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll(".filters button");
+    const cards = document.querySelectorAll(".card");
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        buttons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const filter = btn.dataset.filter;
+        cards.forEach((card) => {
+          const show = filter === "all" || card.dataset.cat === filter;
+          card.classList.toggle("hidden", !show);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
