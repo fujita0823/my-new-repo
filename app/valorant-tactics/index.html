@@ -3,17 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#ff4655" />
+  <meta name="theme-color" content="#7c5cff" />
   <title>Tactic Board · LAB</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="app-shell">
     <div class="topbar">
-      <span class="brand">🎯 Tactic Board</span>
+      <span class="brand"><strong>TACTIC</strong> BOARD</span>
       <input id="strat-name-input" type="text" placeholder="ストラット名" />
       <select id="map-select" title="マップ"></select>
       <span class="spacer"></span>
@@ -36,6 +33,7 @@
       </div>
       <div class="sidebar-section">
         <h3>エージェント</h3>
+        <input id="agent-search" type="text" placeholder="エージェントを検索…" />
         <div id="agent-palette"></div>
       </div>
       <div class="sidebar-section">
@@ -47,11 +45,11 @@
     <div class="board-wrap">
       <div class="toolbar">
         <div class="tool-group">
-          <button class="tool-btn" data-mode="select" title="選択・移動">🖐 選択</button>
-          <button class="tool-btn" data-mode="arrow" title="矢印を描画">➤ 矢印</button>
-          <button class="tool-btn" data-mode="marker" title="アビリティ/メモのマーカー">📍 マーカー</button>
-          <button class="tool-btn" data-mode="text" title="テキストラベル">🔤 テキスト</button>
-          <button class="tool-btn" data-mode="eraser" title="クリックで削除">🧹 消しゴム</button>
+          <button class="tool-btn" data-mode="select" title="選択・移動"><span class="tool-icon">↖</span>選択</button>
+          <button class="tool-btn" data-mode="arrow" title="矢印を描画"><span class="tool-icon">↗</span>矢印</button>
+          <button class="tool-btn" data-mode="marker" title="アビリティ/メモのマーカー"><span class="tool-icon">⚑</span>マーカー</button>
+          <button class="tool-btn" data-mode="text" title="テキストラベル"><span class="tool-icon">T</span>テキスト</button>
+          <button class="tool-btn" data-mode="eraser" title="クリックで削除"><span class="tool-icon">✕</span>消しゴム</button>
         </div>
         <div id="color-palette"></div>
         <div class="tool-group">
@@ -62,11 +60,11 @@
       <div class="board-area">
         <svg id="board-svg" viewBox="0 0 1000 1000">
           <defs>
-            <marker id="arrowhead-white" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#f4f6fb" /></marker>
-            <marker id="arrowhead-red" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ff4655" /></marker>
-            <marker id="arrowhead-cyan" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#4cc9f0" /></marker>
-            <marker id="arrowhead-yellow" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ffd23f" /></marker>
-            <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#53d7b0" /></marker>
+            <marker id="arrowhead-white" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#f4f4f5" /></marker>
+            <marker id="arrowhead-red" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ef4444" /></marker>
+            <marker id="arrowhead-cyan" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#22d3ee" /></marker>
+            <marker id="arrowhead-yellow" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#eab308" /></marker>
+            <marker id="arrowhead-violet" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#7c5cff" /></marker>
           </defs>
           <g id="map-layer"></g>
           <rect id="board-bg-hit" x="0" y="0" width="1000" height="1000" fill="transparent" />
@@ -82,7 +80,7 @@
         <button id="btn-step-right" class="btn" title="右に移動">▶</button>
         <button id="btn-add-step" class="btn">＋ ステップ追加</button>
         <button id="btn-dup-step" class="btn">⧉ 複製</button>
-        <button id="btn-del-step" class="btn">🗑 削除</button>
+        <button id="btn-del-step" class="btn">削除</button>
         <button id="btn-play" class="btn btn-primary">▶ 自動再生</button>
       </div>
     </div>

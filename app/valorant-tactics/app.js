@@ -5,11 +5,11 @@
 const STORAGE_DRAFT = 'vt_draft_v1';
 const STORAGE_SAVED = 'vt_saved_strats_v1';
 const PALETTE = [
-  { id: 'white', hex: '#f4f6fb' },
-  { id: 'red', hex: '#ff4655' },
-  { id: 'cyan', hex: '#4cc9f0' },
-  { id: 'yellow', hex: '#ffd23f' },
-  { id: 'green', hex: '#53d7b0' },
+  { id: 'white', hex: '#f4f4f5' },
+  { id: 'red', hex: '#ef4444' },
+  { id: 'cyan', hex: '#22d3ee' },
+  { id: 'yellow', hex: '#eab308' },
+  { id: 'violet', hex: '#7c5cff' },
 ];
 
 function uid(prefix) {
@@ -154,34 +154,35 @@ function renderMap() {
   const map = getMap(state.strat.mapId);
 
   layer.appendChild(svgEl('rect', { x: 0, y: 0, width: 1000, height: 1000, fill: 'var(--board-bg)', rx: 18 }));
+  layer.appendChild(svgEl('rect', {
+    x: 20, y: 20, width: 960, height: 960, rx: 12, class: 'map-outline',
+  }));
 
   map.spawns.forEach((s) => {
-    const g = svgEl('g', {});
-    g.appendChild(svgEl('ellipse', {
-      cx: s.cx, cy: s.cy, rx: s.rx, ry: s.ry,
-      fill: s.side === 'attack' ? 'rgba(255,70,85,0.10)' : 'rgba(76,201,240,0.10)',
-      stroke: s.side === 'attack' ? 'rgba(255,70,85,0.4)' : 'rgba(76,201,240,0.4)',
-      'stroke-dasharray': '6 6',
+    layer.appendChild(svgEl('rect', {
+      x: s.x, y: s.y, width: s.w, height: s.h, rx: 10,
+      class: `map-spawn map-spawn-${s.side}`,
     }));
-    g.appendChild(svgEl('text', { x: s.cx, y: s.cy, class: 'map-spawn-label' }, ));
-    layer.appendChild(g);
-    const t = layer.lastChild.querySelector('text');
-    t.textContent = s.label;
-  });
-
-  map.zones.forEach((z) => {
-    layer.appendChild(svgEl('ellipse', {
-      cx: z.cx, cy: z.cy, rx: z.rx, ry: z.ry, class: 'map-zone',
-    }));
-    const label = svgEl('text', { x: z.cx, y: z.cy, class: 'map-zone-label' });
-    label.textContent = z.label;
+    const label = svgEl('text', { x: s.x + s.w / 2, y: s.y + s.h / 2, class: 'map-spawn-label' });
+    label.textContent = s.label;
     layer.appendChild(label);
   });
 
-  (map.callouts || []).forEach((c) => {
-    layer.appendChild(svgEl('circle', { cx: c.x, cy: c.y, r: 4, class: 'map-callout-dot' }));
-    const label = svgEl('text', { x: c.x + 8, y: c.y + 4, class: 'map-callout-label' });
+  (map.corridors || []).forEach((c) => {
+    layer.appendChild(svgEl('rect', {
+      x: c.x, y: c.y, width: c.w, height: c.h, rx: 8, class: 'map-corridor',
+    }));
+    const label = svgEl('text', { x: c.x + c.w / 2, y: c.y + c.h / 2, class: 'map-corridor-label' });
     label.textContent = c.label;
+    layer.appendChild(label);
+  });
+
+  map.zones.forEach((z) => {
+    layer.appendChild(svgEl('rect', {
+      x: z.x, y: z.y, width: z.w, height: z.h, rx: 10, class: 'map-zone',
+    }));
+    const label = svgEl('text', { x: z.x + z.w / 2, y: z.y + z.h / 2, class: 'map-zone-label' });
+    label.textContent = z.label;
     layer.appendChild(label);
   });
 }
@@ -264,15 +265,11 @@ function renderBoardContent() {
     });
   });
 
-  // マーカー(アビリティ/メモ)
+  // マーカー(アビリティ/メモ): 点 / コーン(スモーク等の範囲) / ウォール(壁)
   step.markers.forEach((m) => {
-    const g = svgEl('g', { class: 'marker-el', transform: `translate(${m.x},${m.y})` });
-    g.appendChild(svgEl('path', { d: 'M0,-11 L11,0 L0,11 L-11,0 Z', fill: m.color, class: 'marker-shape' }));
-    const title = svgEl('title', {});
-    title.textContent = m.label;
-    g.appendChild(title);
-    layer.appendChild(g);
-    attachDrag(g, m, () => renderBoardContent());
+    if (m.kind === 'cone') { renderConeMarker(layer, svg, m); return; }
+    if (m.kind === 'wall') { renderWallMarker(layer, svg, m); return; }
+    renderPointMarker(layer, m);
   });
 
   // テキストラベル
@@ -303,8 +300,7 @@ function renderBoardContent() {
     if (!agent) return;
     const g = svgEl('g', { class: 'token-el', transform: `translate(${tok.x},${tok.y})` });
     g.appendChild(svgEl('circle', {
-      r: 22, class: 'token-circle', fill: ROLE_COLORS[agent.role],
-      stroke: tok.side === 'attack' ? '#ff4655' : '#4cc9f0',
+      r: 22, class: `token-circle token-${tok.side}`, fill: ROLE_COLORS[agent.role],
     }));
     const txt = svgEl('text', { x: 0, y: 6, class: 'token-label' });
     txt.textContent = agentAbbrev(agent);
@@ -320,6 +316,170 @@ function renderBoardContent() {
 function colorId(hex) {
   const found = PALETTE.find((p) => p.hex === hex);
   return found ? found.id : 'white';
+}
+
+function conePathD(cx, cy, angleDeg, spreadDeg, radius) {
+  const a1 = (angleDeg - spreadDeg / 2) * Math.PI / 180;
+  const a2 = (angleDeg + spreadDeg / 2) * Math.PI / 180;
+  const x1 = cx + radius * Math.cos(a1), y1 = cy + radius * Math.sin(a1);
+  const x2 = cx + radius * Math.cos(a2), y2 = cy + radius * Math.sin(a2);
+  const largeArc = spreadDeg > 180 ? 1 : 0;
+  return `M${cx},${cy} L${x1},${y1} A${radius},${radius} 0 ${largeArc} 1 ${x2},${y2} Z`;
+}
+
+function renderPointMarker(layer, m) {
+  const g = svgEl('g', { class: 'marker-el', transform: `translate(${m.x},${m.y})` });
+  g.appendChild(svgEl('circle', { r: 10, class: 'marker-shape', fill: m.color }));
+  g.appendChild(svgEl('circle', { r: 3.5, fill: '#0b0b0d' }));
+  const title = svgEl('title', {});
+  title.textContent = m.label;
+  g.appendChild(title);
+  layer.appendChild(g);
+  attachDrag(g, m, () => renderBoardContent());
+}
+
+function renderConeMarker(layer, svg, m) {
+  const angle = m.angle ?? 0;
+  const spread = m.spread ?? 50;
+  const radius = m.radius ?? 110;
+  const g = svgEl('g', { class: 'cone-el' });
+
+  const path = svgEl('path', { d: conePathD(m.x, m.y, angle, spread, radius), class: 'cone-shape', fill: m.color, stroke: m.color });
+  const title = svgEl('title', {});
+  title.textContent = m.label;
+  path.appendChild(title);
+  g.appendChild(path);
+
+  const origin = svgEl('circle', { cx: m.x, cy: m.y, r: 7, class: 'cone-origin' });
+  g.appendChild(origin);
+
+  const rad = angle * Math.PI / 180;
+  const tip = svgEl('circle', { cx: m.x + radius * Math.cos(rad), cy: m.y + radius * Math.sin(rad), r: 7, class: 'cone-handle' });
+  g.appendChild(tip);
+  layer.appendChild(g);
+
+  const startTranslate = (evt) => {
+    if (state.mode === 'eraser') {
+      evt.stopPropagation();
+      pushHistory();
+      removeItem(m.id);
+      renderBoardContent();
+      scheduleAutosave();
+      return;
+    }
+    if (state.mode !== 'select') return;
+    evt.stopPropagation();
+    pushHistory();
+    const start = toSvgPoint(svg, evt);
+    const orig = { x: m.x, y: m.y };
+    const move = (e) => {
+      const p = toSvgPoint(svg, e);
+      m.x = orig.x + (p.x - start.x);
+      m.y = orig.y + (p.y - start.y);
+      renderBoardContent();
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      scheduleAutosave();
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  path.addEventListener('pointerdown', startTranslate);
+  origin.addEventListener('pointerdown', startTranslate);
+
+  tip.addEventListener('pointerdown', (evt) => {
+    if (state.mode === 'eraser') {
+      evt.stopPropagation();
+      pushHistory();
+      removeItem(m.id);
+      renderBoardContent();
+      scheduleAutosave();
+      return;
+    }
+    if (state.mode !== 'select') return;
+    evt.stopPropagation();
+    pushHistory();
+    const move = (e) => {
+      const p = toSvgPoint(svg, e);
+      const dx = p.x - m.x, dy = p.y - m.y;
+      m.angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      m.radius = Math.max(30, Math.min(400, Math.hypot(dx, dy)));
+      renderBoardContent();
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      scheduleAutosave();
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  });
+}
+
+function renderWallMarker(layer, svg, m) {
+  const g = svgEl('g', { class: 'wall-el' });
+  const hit = svgEl('line', { x1: m.x, y1: m.y, x2: m.x2, y2: m.y2, class: 'wall-hit' });
+  const line = svgEl('line', { x1: m.x, y1: m.y, x2: m.x2, y2: m.y2, stroke: m.color, class: 'wall-line' });
+  const title = svgEl('title', {});
+  title.textContent = m.label;
+  line.appendChild(title);
+  g.appendChild(hit);
+  g.appendChild(line);
+  layer.appendChild(g);
+
+  hit.addEventListener('pointerdown', (evt) => {
+    if (state.mode === 'eraser') {
+      evt.stopPropagation();
+      pushHistory();
+      removeItem(m.id);
+      renderBoardContent();
+      scheduleAutosave();
+      return;
+    }
+    if (state.mode !== 'select') return;
+    evt.stopPropagation();
+    pushHistory();
+    const start = toSvgPoint(svg, evt);
+    const orig = { x: m.x, y: m.y, x2: m.x2, y2: m.y2 };
+    const move = (e) => {
+      const p = toSvgPoint(svg, e);
+      const dx = p.x - start.x, dy = p.y - start.y;
+      m.x = orig.x + dx; m.y = orig.y + dy;
+      m.x2 = orig.x2 + dx; m.y2 = orig.y2 + dy;
+      renderBoardContent();
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      scheduleAutosave();
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  });
+
+  [['x', 'y'], ['x2', 'y2']].forEach(([xk, yk]) => {
+    const handle = svgEl('circle', { cx: m[xk], cy: m[yk], r: 6, class: 'stroke-handle' });
+    layer.appendChild(handle);
+    handle.addEventListener('pointerdown', (evt) => {
+      if (state.mode !== 'select') return;
+      evt.stopPropagation();
+      pushHistory();
+      const move = (e) => {
+        const p = toSvgPoint(svg, e);
+        m[xk] = p.x; m[yk] = p.y;
+        renderBoardContent();
+      };
+      const up = () => {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        scheduleAutosave();
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    });
+  });
 }
 
 function attachDrag(el, item, rerender) {
@@ -436,6 +596,27 @@ function openMarkerModal(point) {
   title.textContent = 'マーカーを追加';
   box.appendChild(title);
 
+  let kind = 'point';
+  const kindTabs = document.createElement('div');
+  kindTabs.className = 'marker-kind-tabs';
+  const kindDefs = [
+    { id: 'point', label: '点(メモ)' },
+    { id: 'cone', label: 'コーン(範囲)' },
+    { id: 'wall', label: 'ウォール(壁)' },
+  ];
+  kindDefs.forEach((k) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = k.label;
+    b.className = k.id === kind ? 'active' : '';
+    b.addEventListener('click', () => {
+      kind = k.id;
+      kindTabs.querySelectorAll('button').forEach((btn) => btn.classList.toggle('active', btn === b));
+    });
+    kindTabs.appendChild(b);
+  });
+  box.appendChild(labeled('種類', kindTabs));
+
   const agentSelect = document.createElement('select');
   agentSelect.appendChild(new Option('(エージェント指定なし)', ''));
   const groups = {};
@@ -484,8 +665,14 @@ function openMarkerModal(point) {
     const agent = getAgent(agentSelect.value);
     const label = customInput.value.trim() || (agent ? `${agent.name} - ${abilitySelect.value}` : 'メモ');
     const color = agent ? ROLE_COLORS[agent.role] : state.color;
+    const base = { id: uid('mk'), kind, x: point.x, y: point.y, label, color, agentId: agent ? agent.id : null };
+    const marker = kind === 'cone'
+      ? { ...base, angle: -90, spread: 50, radius: 130 }
+      : kind === 'wall'
+        ? { ...base, x2: point.x + 140, y2: point.y }
+        : base;
     pushHistory();
-    activeStep().markers.push({ id: uid('mk'), x: point.x, y: point.y, label, color, agentId: agent ? agent.id : null });
+    activeStep().markers.push(marker);
     renderBoardContent();
     scheduleAutosave();
     closeModal();
@@ -664,23 +851,31 @@ function stopPlayback() {
 
 // ---------- サイドバー: エージェント / 保存済み一覧 ----------
 
+let agentSearchQuery = '';
+
+function roleIconSvg(role) {
+  return `<svg class="role-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${ROLE_ICON_PATHS[role]}"/></svg>`;
+}
+
 function renderAgentPalette() {
   const wrap = document.getElementById('agent-palette');
   wrap.innerHTML = '';
+  const q = agentSearchQuery.trim().toLowerCase();
   ['duelist', 'initiator', 'controller', 'sentinel'].forEach((role) => {
+    const agents = VCT_AGENTS.filter((a) => a.role === role && a.name.toLowerCase().includes(q));
     const section = document.createElement('div');
-    section.className = 'agent-role-section';
+    section.className = 'agent-role-section' + (agents.length ? '' : ' empty');
     const h = document.createElement('h4');
     h.textContent = ROLE_LABELS[role];
     h.style.color = ROLE_COLORS[role];
     section.appendChild(h);
     const grid = document.createElement('div');
     grid.className = 'agent-grid';
-    VCT_AGENTS.filter((a) => a.role === role).forEach((a) => {
+    agents.forEach((a) => {
       const chip = document.createElement('button');
       chip.className = 'agent-chip' + (state.placingAgent && state.placingAgent.agentId === a.id ? ' selected' : '');
       chip.style.setProperty('--role-color', ROLE_COLORS[role]);
-      chip.textContent = a.name;
+      chip.innerHTML = `${roleIconSvg(role)}<span>${a.name}</span>`;
       chip.title = `クリックしてマップに配置(${state.side === 'attack' ? 'ATK' : 'DEF'})`;
       chip.addEventListener('click', () => {
         state.placingAgent = { agentId: a.id };
@@ -837,6 +1032,10 @@ function init() {
       document.querySelectorAll('.side-toggle-btn').forEach((x) => x.classList.toggle('active', x === b));
       renderAgentPalette();
     });
+  });
+  document.getElementById('agent-search').addEventListener('input', (e) => {
+    agentSearchQuery = e.target.value;
+    renderAgentPalette();
   });
 
   document.getElementById('btn-add-step').addEventListener('click', () => addStep(false));
