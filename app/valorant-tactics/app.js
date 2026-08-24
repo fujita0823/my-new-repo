@@ -4,6 +4,8 @@
 
 const STORAGE_DRAFT = 'vt_draft_v1';
 const STORAGE_SAVED = 'vt_saved_strats_v1';
+const STORAGE_LINEUPS = 'vt_lineup_library_v1';
+const MARKER_KIND_LABELS = { point: '点', cone: 'コーン', wall: 'ウォール' };
 const PALETTE = [
   { id: 'white', hex: '#f4f4f5' },
   { id: 'red', hex: '#ef4444' },
@@ -106,6 +108,41 @@ function deleteSaved(id) {
   if (!confirm('このストラットを削除しますか?')) return;
   persistSavedList(loadSavedList().filter((s) => s.id !== id));
   renderSavedList();
+}
+
+// ---------- ラインナップライブラリ ----------
+
+function loadLineupLibrary() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_LINEUPS) || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+function persistLineupLibrary(list) {
+  localStorage.setItem(STORAGE_LINEUPS, JSON.stringify(list));
+}
+
+function saveMarkerToLibrary(marker) {
+  const list = loadLineupLibrary();
+  list.push({ ...clone(marker), id: uid('lu'), mapId: state.strat.mapId, savedAt: Date.now() });
+  persistLineupLibrary(list);
+  renderLineupLibrary();
+}
+
+function deleteLineup(id) {
+  if (!confirm('このラインナップをライブラリから削除しますか?')) return;
+  persistLineupLibrary(loadLineupLibrary().filter((x) => x.id !== id));
+  renderLineupLibrary();
+}
+
+function placeLineup(lu) {
+  if (lu.mapId !== state.strat.mapId) return;
+  pushHistory();
+  const { id, mapId, savedAt, ...rest } = lu;
+  activeStep().markers.push({ ...clone(rest), id: uid('mk') });
+  renderBoardContent();
+  scheduleAutosave();
 }
 
 // ---------- 履歴(undo/redo) ----------
@@ -652,6 +689,14 @@ function openMarkerModal(point) {
   customInput.placeholder = '例: スモークで視界を切る / カスタムラインナップ名';
   box.appendChild(labeled('メモ(自由入力・優先されます)', customInput));
 
+  const libraryLabel = document.createElement('label');
+  libraryLabel.className = 'modal-checkbox';
+  const libraryCheckbox = document.createElement('input');
+  libraryCheckbox.type = 'checkbox';
+  libraryLabel.appendChild(libraryCheckbox);
+  libraryLabel.appendChild(document.createTextNode('ラインナップライブラリにも保存する(このマップ用に再利用できます)'));
+  box.appendChild(libraryLabel);
+
   const btnRow = document.createElement('div');
   btnRow.className = 'modal-actions';
   const cancelBtn = document.createElement('button');
@@ -663,9 +708,10 @@ function openMarkerModal(point) {
   okBtn.className = 'btn btn-primary';
   okBtn.addEventListener('click', () => {
     const agent = getAgent(agentSelect.value);
-    const label = customInput.value.trim() || (agent ? `${agent.name} - ${abilitySelect.value}` : 'メモ');
+    const ability = agent ? abilitySelect.value : '';
+    const label = customInput.value.trim() || (agent ? `${agent.name} - ${ability}` : 'メモ');
     const color = agent ? ROLE_COLORS[agent.role] : state.color;
-    const base = { id: uid('mk'), kind, x: point.x, y: point.y, label, color, agentId: agent ? agent.id : null };
+    const base = { id: uid('mk'), kind, x: point.x, y: point.y, label, color, agentId: agent ? agent.id : null, ability };
     const marker = kind === 'cone'
       ? { ...base, angle: -90, spread: 50, radius: 130 }
       : kind === 'wall'
@@ -673,6 +719,7 @@ function openMarkerModal(point) {
         : base;
     pushHistory();
     activeStep().markers.push(marker);
+    if (libraryCheckbox.checked) saveMarkerToLibrary(marker);
     renderBoardContent();
     scheduleAutosave();
     closeModal();
@@ -920,6 +967,58 @@ function escapeHtml(s) {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+let lineupSearchQuery = '';
+let lineupCurrentMapOnly = true;
+
+function renderLineupLibrary() {
+  const wrap = document.getElementById('lineup-library-list');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const q = lineupSearchQuery.trim().toLowerCase();
+  let list = loadLineupLibrary();
+  if (lineupCurrentMapOnly) list = list.filter((lu) => lu.mapId === state.strat.mapId);
+  if (q) {
+    list = list.filter((lu) => {
+      const agent = getAgent(lu.agentId);
+      const hay = `${agent ? agent.name : ''} ${lu.ability || ''} ${lu.label}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  list.sort((a, b) => b.savedAt - a.savedAt);
+
+  if (!list.length) {
+    const p = document.createElement('p');
+    p.className = 'muted small';
+    p.textContent = 'ラインナップはまだ保存されていません。マーカー作成時に「ライブラリにも保存する」をオンにすると、ここに追加されます。';
+    wrap.appendChild(p);
+    return;
+  }
+
+  list.forEach((lu) => {
+    const map = getMap(lu.mapId);
+    const matchesMap = lu.mapId === state.strat.mapId;
+    const row = document.createElement('div');
+    row.className = 'saved-row lineup-row' + (matchesMap ? '' : ' disabled');
+    const info = document.createElement('div');
+    info.className = 'saved-info';
+    info.innerHTML = `<strong>${escapeHtml(lu.label)}</strong><span class="muted small">${escapeHtml(map.name)} · ${MARKER_KIND_LABELS[lu.kind] || '点'}</span>`;
+    if (matchesMap) {
+      info.title = 'クリックで盤面に配置';
+      info.addEventListener('click', () => placeLineup(lu));
+    } else {
+      info.title = `${map.name} 用のラインナップです。このマップに切り替えると配置できます`;
+    }
+    const del = document.createElement('button');
+    del.className = 'icon-btn';
+    del.textContent = '✕';
+    del.title = 'ライブラリから削除';
+    del.addEventListener('click', (e) => { e.stopPropagation(); deleteLineup(lu.id); });
+    row.appendChild(info);
+    row.appendChild(del);
+    wrap.appendChild(row);
+  });
+}
+
 // ---------- トップバー / ツールバー ----------
 
 function renderTopbar() {
@@ -966,6 +1065,7 @@ function renderAll() {
   renderSteps();
   renderAgentPalette();
   renderSavedList();
+  renderLineupLibrary();
   renderColorPalette();
 }
 
@@ -1005,7 +1105,16 @@ function init() {
   document.getElementById('map-select').addEventListener('change', (e) => {
     state.strat.mapId = e.target.value;
     renderMap();
+    renderLineupLibrary();
     scheduleAutosave();
+  });
+  document.getElementById('lineup-search').addEventListener('input', (e) => {
+    lineupSearchQuery = e.target.value;
+    renderLineupLibrary();
+  });
+  document.getElementById('lineup-current-map-only').addEventListener('change', (e) => {
+    lineupCurrentMapOnly = e.target.checked;
+    renderLineupLibrary();
   });
   document.getElementById('btn-new').addEventListener('click', () => {
     if (!confirm('新しいストラットを作成しますか?(保存していない変更は失われます)')) return;
