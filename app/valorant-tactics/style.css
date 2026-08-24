@@ -233,6 +233,14 @@ input:focus, select:focus, button:focus-visible {
 .color-swatch.active { border-color: var(--fg); }
 #color-palette { display: flex; gap: 0.35rem; align-items: center; padding: 0 0.2rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
 
+.map-disclaimer {
+  margin: 0;
+  padding: 0.4rem 0.9rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.4;
+}
+
 .board-area {
   flex: 1;
   display: flex;
