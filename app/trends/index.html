@@ -165,6 +165,14 @@
       line-height: 1.55;
       margin: 0 0 0.9rem;
     }
+    .demo-link {
+      display: inline-block;
+      margin-top: 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-4);
+      text-decoration: none;
+    }
     .meters { display: grid; gap: 0.35rem; }
     .meter {
       display: flex;
@@ -237,6 +245,7 @@
           <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
           <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●●</span></span></div>
         </div>
+        <a class="demo-link" href="../reaction-react/">▶ 実際にVite + Reactで作った例を見る</a>
       </article>
 
       <article class="card" data-cat="framework">
@@ -272,6 +281,39 @@
         </div>
       </article>
 
+      <article class="card" data-cat="framework">
+        <span class="cat-badge">UIフレームワーク</span>
+        <span class="emoji">💚</span>
+        <h2>Vue 3 / Nuxt</h2>
+        <p class="desc">Composition APIでReactライクな柔軟性を獲得。Nuxtはメタフレームワークとして、Next.js的なSSR/ルーティングを提供。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="framework">
+        <span class="cat-badge">UIフレームワーク</span>
+        <span class="emoji">⚡</span>
+        <h2>Qwik / Qwik City</h2>
+        <p class="desc">「resumability」でHydrationを丸ごと省略し、初期表示に必要なJSだけを遅延ロード。思想は独特だがエコシステムはまだ小さい。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="framework">
+        <span class="cat-badge">UIフレームワーク</span>
+        <span class="emoji">🅰️</span>
+        <h2>Angular</h2>
+        <p class="desc">フルスタック的にルーティング・DI・フォームまで内蔵する老舗フレームワーク。SignalsやStandalone Componentsで近年モダン化が進む。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●●●</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
       <article class="card" data-cat="build">
         <span class="cat-badge">ビルドツール</span>
         <span class="emoji">⚡</span>
@@ -281,6 +323,7 @@
           <div class="meter"><span>導入のしやすさ</span><span class="dots"><span class="on">●●●</span></span></div>
           <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●●</span></span></div>
         </div>
+        <a class="demo-link" href="../reaction-react/">▶ 実際にVite + Reactで作った例を見る</a>
       </article>
 
       <article class="card" data-cat="build">
@@ -305,6 +348,39 @@
         </div>
       </article>
 
+      <article class="card" data-cat="build">
+        <span class="cat-badge">ビルドツール</span>
+        <span class="emoji">🏗️</span>
+        <h2>esbuild</h2>
+        <p class="desc">Go製の高速バンドラー/トランスパイラ。単体でも使われるが、Vite内部の依存事前バンドルなど「他ツールの内部エンジン」としての存在感が大きい。</p>
+        <div class="meters">
+          <div class="meter"><span>導入のしやすさ</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="build">
+        <span class="cat-badge">ビルドツール</span>
+        <span class="emoji">🌀</span>
+        <h2>Turbopack</h2>
+        <p class="desc">Vercel製Rust製バンドラー。Next.jsの開発サーバー/ビルドに統合され、大規模プロジェクトでのVite/webpack代替を狙う。</p>
+        <div class="meters">
+          <div class="meter"><span>導入のしやすさ</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="build">
+        <span class="cat-badge">ビルドツール</span>
+        <span class="emoji">📦</span>
+        <h2>webpack</h2>
+        <p class="desc">長年のデファクト標準。新規プロジェクトでの採用は減っているが、既存の大規模資産(社内ツール等)では依然現役。比較の基準点として。</p>
+        <div class="meters">
+          <div class="meter"><span>導入のしやすさ</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+        </div>
+      </article>
+
       <article class="card" data-cat="style">
         <span class="cat-badge">スタイリング</span>
         <span class="emoji">🎨</span>
@@ -313,6 +389,39 @@
         <div class="meters">
           <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
           <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●●</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="style">
+        <span class="cat-badge">スタイリング</span>
+        <span class="emoji">🎯</span>
+        <h2>UnoCSS</h2>
+        <p class="desc">オンデマンドで生成するアトミックCSSエンジン。Tailwind互換プリセットを持ちつつ、より高速・柔軟なルール定義が可能。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="style">
+        <span class="cat-badge">スタイリング</span>
+        <span class="emoji">🧩</span>
+        <h2>CSS Modules</h2>
+        <p class="desc">クラス名をファイル単位でスコープ化する古典的手法。ビルド設定なしでも扱いやすく、多くのフレームワークに標準搭載。地味だが今も現役。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="style">
+        <span class="cat-badge">スタイリング</span>
+        <span class="emoji">💅</span>
+        <h2>styled-components / Emotion</h2>
+        <p class="desc">ランタイムCSS-in-JSの代表格。JSでスタイルを書ける柔軟さが評価されたが、ランタイムコストの問題からzero-runtime系への移行が進む。</p>
+        <div class="meters">
+          <div class="meter"><span>学習コスト</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+          <div class="meter"><span>採用の勢い</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
         </div>
       </article>
 
@@ -354,6 +463,50 @@
         <span class="emoji">🐢</span>
         <h2>Tauri</h2>
         <p class="desc">RustコアでOS標準のWebViewを利用し、Chromium同梱を避けて大幅に軽量・省メモリ化。Electronの代替として採用拡大中。</p>
+        <div class="meters">
+          <div class="meter"><span>軽さ</span><span class="dots"><span class="on">●●●</span></span></div>
+          <div class="meter"><span>実績・情報量</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="desktop">
+        <span class="cat-badge">デスクトップランタイム</span>
+        <span class="emoji">🪶</span>
+        <h2>Neutralino.js</h2>
+        <p class="desc">OS標準のWebViewを使う軽量ランタイム。RustもGoも不要でJS/HTML/CSSだけで完結し、学習コストの低さが売り。エコシステムはまだ小さい。</p>
+        <div class="meters">
+          <div class="meter"><span>軽さ</span><span class="dots"><span class="on">●●●</span></span></div>
+          <div class="meter"><span>実績・情報量</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="desktop">
+        <span class="cat-badge">デスクトップランタイム</span>
+        <span class="emoji">🕸️</span>
+        <h2>NW.js</h2>
+        <p class="desc">Electronの源流にあたる、Node.js統合ブラウザランタイム。老舗で実績はあるが、近年の勢いはElectron/Tauriに押され気味。</p>
+        <div class="meters">
+          <div class="meter"><span>軽さ</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+          <div class="meter"><span>実績・情報量</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="desktop">
+        <span class="cat-badge">デスクトップランタイム</span>
+        <span class="emoji">🐹</span>
+        <h2>Wails</h2>
+        <p class="desc">Go + OS標準WebViewの組み合わせ。設計思想はTauriに近いが、バックエンドをRustではなくGoで書きたいチームに選ばれる。</p>
+        <div class="meters">
+          <div class="meter"><span>軽さ</span><span class="dots"><span class="on">●●●</span></span></div>
+          <div class="meter"><span>実績・情報量</span><span class="dots"><span class="on">●</span><span class="off">○○</span></span></div>
+        </div>
+      </article>
+
+      <article class="card" data-cat="desktop">
+        <span class="cat-badge">デスクトップランタイム</span>
+        <span class="emoji">📲</span>
+        <h2>インストール可能PWA</h2>
+        <p class="desc">そもそもネイティブ包装せず、ブラウザの「インストール」機能でホーム画面/デスクトップに追加。パッケージング不要な最軽量の選択肢。</p>
         <div class="meters">
           <div class="meter"><span>軽さ</span><span class="dots"><span class="on">●●●</span></span></div>
           <div class="meter"><span>実績・情報量</span><span class="dots"><span class="on">●●</span><span class="off">○</span></span></div>
